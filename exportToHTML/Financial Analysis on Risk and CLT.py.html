@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>Financial Analysis on Risk and CLT.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Financial Analysis on Risk and CLT.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+<span class="s0">import </span><span class="s1">pandas </span><span class="s0">as </span><span class="s1">pd</span>
+<span class="s0">from </span><span class="s1">scipy</span><span class="s2">.</span><span class="s1">stats </span><span class="s0">import </span><span class="s1">norm</span>
+<span class="s1">days </span><span class="s2">= </span><span class="s3">252 </span><span class="s2">* </span><span class="s3">10</span>
+<span class="s1">n_assets_list </span><span class="s2">= [</span><span class="s3">10</span><span class="s2">, </span><span class="s3">30</span><span class="s2">, </span><span class="s3">100</span><span class="s2">]</span>
+<span class="s1">mu </span><span class="s2">= </span><span class="s3">0.0005</span>
+<span class="s1">sigma </span><span class="s2">= </span><span class="s3">0.01</span>
+<span class="s1">simulations </span><span class="s2">= </span><span class="s3">10000</span>
+<span class="s1">np</span><span class="s2">.</span><span class="s1">random</span><span class="s2">.</span><span class="s1">seed</span><span class="s2">(</span><span class="s3">42</span><span class="s2">)</span>
+<span class="s1">sampling_means </span><span class="s2">= {}</span>
+<span class="s0">for </span><span class="s1">n_assets </span><span class="s0">in </span><span class="s1">n_assets_list</span><span class="s2">:</span>
+
+    <span class="s1">asset_returns </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">random</span><span class="s2">.</span><span class="s1">normal</span><span class="s2">(</span><span class="s1">mu</span><span class="s2">, </span><span class="s1">sigma</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s1">days</span><span class="s2">, </span><span class="s1">n_assets</span><span class="s2">))</span>
+
+    <span class="s1">portfolio_returns </span><span class="s2">= </span><span class="s1">asset_returns</span><span class="s2">.</span><span class="s1">mean</span><span class="s2">(</span><span class="s1">axis</span><span class="s2">=</span><span class="s3">1</span><span class="s2">)</span>
+
+    <span class="s1">resampled_means </span><span class="s2">= [</span>
+        <span class="s1">portfolio_returns</span><span class="s2">[</span><span class="s1">np</span><span class="s2">.</span><span class="s1">random</span><span class="s2">.</span><span class="s1">choice</span><span class="s2">(</span><span class="s1">len</span><span class="s2">(</span><span class="s1">portfolio_returns</span><span class="s2">), </span><span class="s1">n_assets</span><span class="s2">)].</span><span class="s1">mean</span><span class="s2">()</span>
+        <span class="s0">for </span><span class="s1">_ </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">simulations</span><span class="s2">)</span>
+    <span class="s2">]</span>
+    <span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">n_assets</span><span class="s2">] = </span><span class="s1">np</span><span class="s2">.</span><span class="s1">array</span><span class="s2">(</span><span class="s1">resampled_means</span><span class="s2">)</span>
+<span class="s1">largest_n </span><span class="s2">= </span><span class="s1">n_assets_list</span><span class="s2">[-</span><span class="s3">1</span><span class="s2">]</span>
+<span class="s1">port_mean </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">mean</span><span class="s2">(</span><span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">largest_n</span><span class="s2">])</span>
+<span class="s1">port_stdev </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">std</span><span class="s2">(</span><span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">largest_n</span><span class="s2">])</span>
+<span class="s1">norm_var_95 </span><span class="s2">= </span><span class="s1">norm</span><span class="s2">.</span><span class="s1">ppf</span><span class="s2">(</span><span class="s3">0.05</span><span class="s2">, </span><span class="s1">loc</span><span class="s2">=</span><span class="s1">port_mean</span><span class="s2">, </span><span class="s1">scale</span><span class="s2">=</span><span class="s1">port_stdev</span><span class="s2">)</span>
+<span class="s1">nonparam_var_95 </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">percentile</span><span class="s2">(</span><span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">largest_n</span><span class="s2">], </span><span class="s3">5</span><span class="s2">)</span>
+<span class="s1">summary </span><span class="s2">= </span><span class="s1">pd</span><span class="s2">.</span><span class="s1">DataFrame</span><span class="s2">({</span>
+    <span class="s4">'Portfolio_Size'</span><span class="s2">: </span><span class="s1">n_assets_list</span><span class="s2">,</span>
+    <span class="s4">'Sampling_Mean'</span><span class="s2">: [</span><span class="s1">np</span><span class="s2">.</span><span class="s1">mean</span><span class="s2">(</span><span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">n</span><span class="s2">]) </span><span class="s0">for </span><span class="s1">n </span><span class="s0">in </span><span class="s1">n_assets_list</span><span class="s2">],</span>
+    <span class="s4">'Sampling_Std'</span><span class="s2">: [</span><span class="s1">np</span><span class="s2">.</span><span class="s1">std</span><span class="s2">(</span><span class="s1">sampling_means</span><span class="s2">[</span><span class="s1">n</span><span class="s2">]) </span><span class="s0">for </span><span class="s1">n </span><span class="s0">in </span><span class="s1">n_assets_list</span><span class="s2">]</span>
+<span class="s2">})</span>
+<span class="s1">summary</span><span class="s2">[</span><span class="s4">'Norm_VaR_95'</span><span class="s2">] = </span><span class="s1">np</span><span class="s2">.</span><span class="s1">nan</span>
+<span class="s1">summary</span><span class="s2">[</span><span class="s4">'Empirical_VaR_95'</span><span class="s2">] = </span><span class="s1">np</span><span class="s2">.</span><span class="s1">nan</span>
+<span class="s1">summary</span><span class="s2">.</span><span class="s1">loc</span><span class="s2">[</span><span class="s1">summary</span><span class="s2">[</span><span class="s4">'Portfolio_Size'</span><span class="s2">] == </span><span class="s1">largest_n</span><span class="s2">, </span><span class="s4">'Norm_VaR_95'</span><span class="s2">] = </span><span class="s1">norm_var_95</span>
+<span class="s1">summary</span><span class="s2">.</span><span class="s1">loc</span><span class="s2">[</span><span class="s1">summary</span><span class="s2">[</span><span class="s4">'Portfolio_Size'</span><span class="s2">] == </span><span class="s1">largest_n</span><span class="s2">, </span><span class="s4">'Empirical_VaR_95'</span><span class="s2">] = </span><span class="s1">nonparam_var_95</span>
+<span class="s1">summary</span><span class="s2">.</span><span class="s1">to_csv</span><span class="s2">(</span><span class="s4">&quot;portfolio_clt_summary.csv&quot;</span><span class="s2">, </span><span class="s1">index</span><span class="s2">=</span><span class="s0">False</span><span class="s2">)</span>
+<span class="s1">print</span><span class="s2">(</span><span class="s1">summary</span><span class="s2">)</span></pre>
+</body>
+</html>
